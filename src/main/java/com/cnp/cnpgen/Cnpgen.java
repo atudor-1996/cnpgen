@@ -3,6 +3,7 @@ package com.cnp.cnpgen;
 import com.cnp.utils.CnpUtils;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -10,17 +11,16 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Cnpgen implements CnpUtils {
     private String cnp;
     private LocalDate birthDate;
-    private String gender;
 
     @Override
     public String formatGender() {
 
         int birthYear = birthDate.getYear();
         System.out.println(birthYear);
-        gender = randomGender();
+        String gender = randomGender();
 
-        if(birthYear >= 1800 && birthYear <= 1899) gender = Integer.toString(Integer.valueOf(gender)+2);
-        if(birthYear >= 2000 && birthYear <= 2099) gender = Integer.toString(Integer.valueOf(gender)+4);
+        if(birthYear >= 1800 && birthYear <= 1899) gender = Integer.toString(Integer.parseInt(gender)+2);
+        if(birthYear >= 2000 && birthYear <= 2099) gender = Integer.toString(Integer.parseInt(gender)+4);
         return gender;
 
     }
@@ -35,7 +35,7 @@ public class Cnpgen implements CnpUtils {
 
     @Override
     public String randomDate() {
-        LocalDate startInclusive = LocalDate.of(1900,01,01);
+        LocalDate startInclusive = LocalDate.of(1900,1,1);
         LocalDate endExclusive = LocalDate.of(2099,12,30);
         long startEpochDay = startInclusive.toEpochDay();
         long endEpochDay = endExclusive.toEpochDay();
@@ -43,14 +43,13 @@ public class Cnpgen implements CnpUtils {
                 .current()
                 .nextLong(startEpochDay, endEpochDay);
         birthDate = LocalDate.ofEpochDay(randomDay);
-        String val = LocalDate.ofEpochDay(randomDay).toString();
-        return val;
+        return birthDate.toString();
     }
 
     public String randomDate(int beginYear, int endYear) {
         //TODO make throw mechanism -- for new functionality
         if(beginYear < 1900 || beginYear > 2099 || endYear < 1900 || endYear > 2099) return "NotInRange";
-        LocalDate startInclusive = LocalDate.of(beginYear,01,01);
+        LocalDate startInclusive = LocalDate.of(beginYear,1,1);
         LocalDate endExclusive = LocalDate.of(endYear,12,30);
         long startEpochDay = startInclusive.toEpochDay();
         long endEpochDay = endExclusive.toEpochDay();
@@ -65,7 +64,7 @@ public class Cnpgen implements CnpUtils {
     @Override
     public String randomCounty() {
         int val = (int)Math.floor(Math.random()*(46)+1);
-        if(val < 10)return new StringBuilder("0").append(val).toString();
+        if(val < 10)return "0" + val;
         else return Integer.toString(val);
     }
 
@@ -104,20 +103,19 @@ public class Cnpgen implements CnpUtils {
     public String getFormattedDate()
     {
         String[] dateArr = randomDate().split("-");
-        StringBuilder dateFormatted = new StringBuilder();
-        dateFormatted.append(dateArr[0].substring(2,4))
-                .append(dateArr[1])
-                .append(dateArr[1]);
-        String formattedDate = dateFormatted.toString();
+        String formattedDate = dateArr[0].substring(2, 4) +
+                dateArr[1] +
+                dateArr[1];
 
         return formattedDate;
     }
 
     @Override
     public String randomNNN() {
-        int num = new Random().nextInt(0,1000);
-        if( num < 10) return new StringBuilder("00").append(Integer.toString(num)).toString();
-        if(num >= 10 && num < 100)return new StringBuilder("0").append(Integer.toString(num)).toString();
+        Random rand = new Random();
+        int num = rand.nextInt(1000) +1;
+        if( num < 10) return "00" + num;
+        if(num < 100)return "0" + num;
         return Integer.toString(num);
 
     }
@@ -135,5 +133,16 @@ public class Cnpgen implements CnpUtils {
 
     public Cnpgen() {
         buildCnp();
+    }
+
+    public HashSet<String> getCnpList(int number)
+    {
+        HashSet<String> cnpList = new HashSet<>();
+        while(cnpList.size() < number)
+        {
+            cnpList.add(new Cnpgen().getCnp());
+        }
+
+        return cnpList;
     }
 }
