@@ -18,6 +18,7 @@ public class CnpController {
         return cnp.toString();
     }
     @GetMapping("/random/getList")
+    @ResponseBody
     public ResponseEntity<Object> getList(@RequestParam int number)
     {
         Cnpgen cnp = new Cnpgen();
