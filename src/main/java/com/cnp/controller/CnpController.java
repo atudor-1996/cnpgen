@@ -6,7 +6,7 @@ import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashSet;
+import java.util.*;
 
 @RestController
 @RequestMapping("/cnp")
@@ -21,8 +21,8 @@ public class CnpController {
     @ResponseBody
     public ResponseEntity<Object> getList(@RequestParam int number)
     {
-        Cnpgen cnp = new Cnpgen();
-        HashSet<String> cnpList = cnp.getCnpList(number);
-        return new ResponseEntity<Object>(cnpList, HttpStatus.OK);
+        LinkedHashSet<Cnpgen> set = new LinkedHashSet<>(Cnpgen.getCnpList(number));
+
+        return new ResponseEntity<Object>(set, HttpStatus.OK);
     }
 }

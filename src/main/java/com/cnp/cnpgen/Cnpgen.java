@@ -3,20 +3,28 @@ package com.cnp.cnpgen;
 import com.cnp.utils.CnpUtils;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 
 public class Cnpgen implements CnpUtils {
     private String cnp;
-    private LocalDate birthDate;
+    private final int id;
+
+    public int getId() {
+        return id;
+    }
+
+
+    public static int counter;
+
+
 
     @Override
-    public String formatGender() {
+    public String formatGender(String year) {
 
-        int birthYear = birthDate.getYear();
-        System.out.println(birthYear);
+        int birthYear = Integer.parseInt(year);
+        //System.out.println(birthYear);
         String gender = randomGender();
 
         if(birthYear >= 1800 && birthYear <= 1899) gender = Integer.toString(Integer.parseInt(gender)+2);
@@ -42,8 +50,7 @@ public class Cnpgen implements CnpUtils {
         long randomDay = ThreadLocalRandom
                 .current()
                 .nextLong(startEpochDay, endEpochDay);
-        birthDate = LocalDate.ofEpochDay(randomDay);
-        return birthDate.toString();
+        return LocalDate.ofEpochDay(randomDay).toString();
     }
 
     public String randomDate(int beginYear, int endYear) {
@@ -57,7 +64,7 @@ public class Cnpgen implements CnpUtils {
                 .current()
                 .nextLong(startEpochDay, endEpochDay);
         String val = LocalDate.ofEpochDay(randomDay).toString();
-        birthDate = LocalDate.ofEpochDay(randomDay);
+        //birthDate = LocalDate.ofEpochDay(randomDay);
         return val;
     }
 
@@ -90,8 +97,8 @@ public class Cnpgen implements CnpUtils {
     @Override
     public void buildCnp() {
 
-        String formattedDate = getFormattedDate();
-        StringBuilder cnpNoChkSum = new StringBuilder(formatGender())
+        String formattedDate = FormattedDate();
+        StringBuilder cnpNoChkSum = new StringBuilder(formatGender(formattedDate))
                 .append(formattedDate)
                 .append(randomCounty())
                 .append(randomNNN());
@@ -100,7 +107,7 @@ public class Cnpgen implements CnpUtils {
 
     }
 
-    public String getFormattedDate()
+    public String FormattedDate()
     {
         String[] dateArr = randomDate().split("-");
         String formattedDate = dateArr[0].substring(2, 4) +
@@ -113,7 +120,7 @@ public class Cnpgen implements CnpUtils {
     @Override
     public String randomNNN() {
         Random rand = new Random();
-        int num = rand.nextInt(1000) +1;
+        int num = rand.nextInt(1000);
         if( num < 10) return "00" + num;
         if(num < 100)return "0" + num;
         return Integer.toString(num);
@@ -132,17 +139,36 @@ public class Cnpgen implements CnpUtils {
     }
 
     public Cnpgen() {
+        id = counter++;
         buildCnp();
     }
 
-    public HashSet<String> getCnpList(int number)
+    public static LinkedHashSet<Cnpgen> getCnpList(int number)
     {
-        HashSet<String> cnpList = new HashSet<>();
-        while(cnpList.size() < number)
+        LinkedHashSet<Cnpgen> cnpSet = new LinkedHashSet<>();
+
+        while(cnpSet.size() < number)
         {
-            cnpList.add(new Cnpgen().getCnp());
+            cnpSet.add(new Cnpgen());
         }
 
-        return cnpList;
+        counter = 0;
+
+        return cnpSet;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Cnpgen cnpgen = (Cnpgen) o;
+
+        return cnp.equals(cnpgen.cnp);
+    }
+
+    @Override
+    public int hashCode() {
+        return cnp.hashCode();
     }
 }
