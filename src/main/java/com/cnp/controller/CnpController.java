@@ -12,17 +12,31 @@ import java.util.*;
 @RequestMapping("/cnp")
 public class CnpController {
     @GetMapping("/random")
-    public String getCnp()
-    {
+    public String getCnp() {
         Cnpgen cnp = new Cnpgen();
         return cnp.toString();
     }
+
     @GetMapping("/random/getList")
     @ResponseBody
-    public ResponseEntity<Object> getList(@RequestParam int number)
-    {
-        LinkedHashSet<Cnpgen> set = new LinkedHashSet<>(Cnpgen.getCnpList(number));
+    public ResponseEntity<Object> getList(@RequestParam int number,
+                                          @RequestParam(required = false) Integer gender,
+                                          @RequestParam(required = false) Integer beginYear,
+                                          @RequestParam(required = false) Integer endYear,
+                                          @RequestParam(required = false) Integer county) {
+        try {
+            LinkedHashSet<Cnpgen> set;
+            if (gender != null || beginYear != null || endYear != null || county != null) {
+                set = new LinkedHashSet<>(Cnpgen.getCnpList(number, gender, beginYear, endYear, county));
+            } else {
+                set = new LinkedHashSet<>(Cnpgen.getCnpList(number));
+            }
+            return new ResponseEntity<>(set, HttpStatus.OK);
 
-        return new ResponseEntity<Object>(set, HttpStatus.OK);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(e, HttpStatus.NOT_ACCEPTABLE);
+        }
+
     }
 }
